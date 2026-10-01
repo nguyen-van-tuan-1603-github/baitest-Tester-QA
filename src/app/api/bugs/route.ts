@@ -1,0 +1,4 @@
+import { NextResponse } from "next/server";
+import { structured } from "@/lib/ai";
+import { bugSchema } from "@/lib/schemas";
+export async function POST(request: Request) { try { const body: unknown = await request.json(); if (typeof body !== "object" || body === null || !("failure" in body)) return NextResponse.json({ error: "Failure evidence is required." }, { status: 400 }); const result = await structured("You are a senior QA engineer. Analyze this failed test and evidence. Return JSON with title, severity (high|medium|low), testCase, expected, actual, possibleCause. Do not claim certainty beyond evidence.", JSON.stringify(body.failure), bugSchema); return NextResponse.json(result); } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Bug analysis failed." }, { status: 500 }); } }

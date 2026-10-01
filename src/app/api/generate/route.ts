@@ -1,0 +1,5 @@
+import { NextResponse } from "next/server";
+import { structured } from "@/lib/ai";
+import { generatedSchema } from "@/lib/schemas";
+export const maxDuration = 60;
+export async function POST(request: Request) { try { const body: unknown = await request.json(); if (typeof body !== "object" || body === null || !("requirement" in body) || typeof body.requirement !== "string" || !body.requirement.trim()) return NextResponse.json({ error: "Enter a requirement first." }, { status: 400 }); const result = await structured("You are an expert QA engineer. Analyze the software requirement and generate at least 15 distinct, useful test cases covering positive, negative, boundary, and validation scenarios. Use exact JSON shape {testCases:[{id,title,type,priority,steps,expectedResult}],strategy:{scope,testingTypes,risks}}. IDs unique TC001 onward. Never duplicate tests. Return only valid JSON.", body.requirement.trim(), generatedSchema); return NextResponse.json(result); } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Test generation failed." }, { status: 500 }); } }
